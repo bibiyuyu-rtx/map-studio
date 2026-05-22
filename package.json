@@ -1,0 +1,21 @@
+{
+  "name": "map-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Web-based spatial data editor like QGIS/Felt.com with choropleth visualization",
+  "packageManager": "pnpm@11.1.3",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "test": "turbo test"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "turbo": "^2.9.14",
+    "typescript": "^5.9.3"
+  }
+}
