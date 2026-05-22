@@ -18,9 +18,19 @@ import { Button } from "@/components/ui/Button";
 import { useMapStore } from "@/stores/mapStore";
 import { cn } from "@/lib/utils";
 
-export function FloatingToolbar() {
+interface FloatingToolbarProps {
+  onImport?: () => void;
+  onExport?: () => void;
+  onSettings?: () => void;
+}
+
+export function FloatingToolbar({
+  onImport,
+  onExport,
+  onSettings,
+}: FloatingToolbarProps) {
   const [activeTool, setActiveTool] = useState<string | null>(null);
-  const { drawMode, setDrawMode } = useMapStore();
+  const { map, drawMode, setDrawMode } = useMapStore();
 
   const tools = [
     { id: "select", icon: MousePointer2, label: "Select" },
@@ -30,10 +40,10 @@ export function FloatingToolbar() {
   ];
 
   const actions = [
-    { id: "import", icon: Upload, label: "Import" },
-    { id: "export", icon: Download, label: "Export" },
+    { id: "import", icon: Upload, label: "Import", onClick: onImport },
+    { id: "export", icon: Download, label: "Export", onClick: onExport },
     { id: "layers", icon: Layers, label: "Layers" },
-    { id: "settings", icon: Settings, label: "Settings" },
+    { id: "settings", icon: Settings, label: "Settings", onClick: onSettings },
   ];
 
   const handleToolClick = (toolId: string) => {
@@ -43,6 +53,24 @@ export function FloatingToolbar() {
       setDrawMode(toolId as "point" | "line" | "polygon");
     }
     setActiveTool(activeTool === toolId ? null : toolId);
+  };
+
+  const handleZoomIn = () => {
+    if (map) map.zoomIn();
+  };
+
+  const handleZoomOut = () => {
+    if (map) map.zoomOut();
+  };
+
+  const handleResetView = () => {
+    if (map) {
+      map.flyTo({
+        center: [107.6298, -6.9175], // Indonesia center
+        zoom: 5,
+        duration: 1000,
+      });
+    }
   };
 
   return (
@@ -70,13 +98,31 @@ export function FloatingToolbar() {
 
         {/* Zoom Controls */}
         <div className="flex items-center gap-0.5 border-r border-[var(--border)] pr-2">
-          <Button variant="ghost" size="icon" className="h-9 w-9" title="Zoom In">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9"
+            title="Zoom In"
+            onClick={handleZoomIn}
+          >
             <ZoomIn className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-9 w-9" title="Zoom Out">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9"
+            title="Zoom Out"
+            onClick={handleZoomOut}
+          >
             <ZoomOut className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-9 w-9" title="Reset View">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9"
+            title="Reset View"
+            onClick={handleResetView}
+          >
             <RotateCcw className="h-4 w-4" />
           </Button>
         </div>
@@ -90,6 +136,7 @@ export function FloatingToolbar() {
               size="icon"
               className="h-9 w-9"
               title={action.label}
+              onClick={action.onClick}
             >
               <action.icon className="h-4 w-4" />
             </Button>
