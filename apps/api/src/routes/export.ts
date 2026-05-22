@@ -14,17 +14,8 @@ export async function exportRoutes(fastify: FastifyInstance) {
         });
       }
 
-      const features = await db.getFeatures(request.params.layerId);
-
-      const geojson: GeoJSON.FeatureCollection = {
-        type: "FeatureCollection",
-        features: features.map((f) => ({
-          type: "Feature",
-          id: f.id,
-          geometry: JSON.parse(f.geometry as string),
-          properties: f.properties ? JSON.parse(f.properties as string) : {},
-        })),
-      };
+      // Use PostGIS to export directly as GeoJSON
+      const geojson = await db.exportLayerGeoJSON(request.params.layerId);
 
       return {
         success: true,
@@ -45,29 +36,8 @@ export async function exportRoutes(fastify: FastifyInstance) {
         });
       }
 
-      const layers = await db.getLayers(request.params.projectId);
-
-      const features: GeoJSON.Feature[] = [];
-      for (const layer of layers) {
-        const layerFeatures = await db.getFeatures(layer.id as string);
-        for (const f of layerFeatures) {
-          features.push({
-            type: "Feature",
-            id: f.id,
-            geometry: JSON.parse(f.geometry as string),
-            properties: {
-              ...(f.properties ? JSON.parse(f.properties as string) : {}),
-              _layerId: f.layer_id,
-              _layerName: layer.name,
-            },
-          });
-        }
-      }
-
-      const geojson: GeoJSON.FeatureCollection = {
-        type: "FeatureCollection",
-        features,
-      };
+      // Use PostGIS to export directly as GeoJSON
+      const geojson = await db.exportProjectGeoJSON(request.params.projectId);
 
       return {
         success: true,
